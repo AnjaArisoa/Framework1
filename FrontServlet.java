@@ -5,7 +5,7 @@ import java.io.*;
 import java.util.HashMap;
 
 public class FrontServlet extends HttpServlet{
-   
+    HashMap<String,Mapping> MappingUrls;
     
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException{
         res.setContentType("text/plain");
