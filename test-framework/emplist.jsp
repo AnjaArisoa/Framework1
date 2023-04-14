@@ -1,4 +1,4 @@
-
+<%@ page import="java.utils.*" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +8,10 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>test</h1>
-  
+    <h1>test    </h1>
+  <% 
+    String myData = (String) request.getAttribute("emp-insert");
+    out.println("<p>" + myData + "</p>");
+  %>
 </body>
 </html>
