@@ -12,9 +12,6 @@ public class ModelView {
     public void setView(String view) {
         this.view = view;
     }
-    public HashMap<String,Object> getData(){
-        return data;
-    }
    
 }
 
