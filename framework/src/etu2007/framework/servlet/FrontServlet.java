@@ -6,6 +6,7 @@ import etu2007.framework.Mapping;
 import etu2007.framework.ModelView;
 import utils.PackageTool;
 import java.io.*;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
@@ -27,6 +28,7 @@ public class FrontServlet extends HttpServlet{
         }
     }
 
+   
     protected void processRequest(HttpServletRequest req,HttpServletResponse res) throws IOException{
         res.setContentType("text/plain");
         PrintWriter out = res.getWriter();
@@ -36,6 +38,16 @@ public class FrontServlet extends HttpServlet{
         if(urlMapping.containsKey(url)){
             try {
                 Object act = Class.forName(urlMapping.get(url).getClassName()).newInstance();
+                Class<?> clazz = act.getClass();
+                Field[] fields = clazz.getDeclaredFields();
+                String parameter=req.getParameter("nom");
+                String mitovy=fields[0].getName();
+                System.out.println(act.getClass().getName());
+                if(mitovy=="nom"){
+                    if(parameter!=null){
+                        clazz.getDeclaredMethod(urlMapping.get(url).getMethod(), parameter.getClass()).invoke(act,parameter);
+                    }
+                }
                 ModelView mv = (ModelView)act.getClass().getDeclaredMethod(urlMapping.get(url).getMethod()).invoke(act);
                 Object val="Valeur";
                 mv.addItem(url, val);
@@ -51,6 +63,7 @@ public class FrontServlet extends HttpServlet{
         }
     }
 
+    
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException{
         processRequest(req, res);
     }
