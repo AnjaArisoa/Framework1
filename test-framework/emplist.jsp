@@ -9,9 +9,10 @@
 </head>
 <body>
     <h1>test    </h1>
-  <% 
-    String myData = (String) request.getAttribute("emp-insert");
-    out.println("<p>" + myData + "</p>");
-  %>
+    <%
+        for(String s : data){ %>
+            <p><%= s %></p>
+        <% }
+    %>
 </body>
 </html>
