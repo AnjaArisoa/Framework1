@@ -1,4 +1,7 @@
 <%@ page import="java.utils.*" %>
+<%
+    List<String> data = (List<String>)request.getAttribute("data");
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
