@@ -8,7 +8,9 @@ import utils.PackageTool;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.sql.Date;
+import java.text.Annotation;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.lang.reflect.Field;
@@ -44,6 +46,7 @@ public class FrontServlet extends HttpServlet{
         if(urlMapping.containsKey(url)){
             try {
                 Object act = Class.forName(urlMapping.get(url).getClassName()).newInstance();
+              
                 Class<?> clazz = act.getClass();
                 Field[] fields = clazz.getDeclaredFields();
                 Enumeration<String> enumeration = req.getParameterNames();
@@ -61,7 +64,21 @@ public class FrontServlet extends HttpServlet{
 							
 						}
                     }
-                    ModelView mv = (ModelView)act.getClass().getDeclaredMethod(urlMapping.get(url).getMethod()).invoke(act);
+                   
+                    
+               Method method = this.getMethode(act.getClass(), urlMapping.get(url).getMethod(), url);
+ArrayList<String> methodArgs = ParametersValue(req, method);
+ModelView mv ;
+if(methodArgs.size()>0){
+    mv = (ModelView) method.invoke(act, methodArgs.toArray());
+}
+else{
+     mv = (ModelView) method.invoke(act);
+}
+
+
+                        System.out.println(methodArgs.size());
+                
                         for (String rl:mv.getData().keySet()){
                             Object valeur = mv.getData().get(rl);
                             req.setAttribute(rl,valeur);
@@ -73,6 +90,7 @@ public class FrontServlet extends HttpServlet{
             } 
             catch (Exception e) {
                 e.printStackTrace();
+                out.println(e);
             }
         }
     }
@@ -106,7 +124,64 @@ public class FrontServlet extends HttpServlet{
             return null;
         }
     }
-    
+       public static Method getMethode(Class modelClass, String methodName, String annotationName) {
+        Method[] methods = modelClass.getDeclaredMethods();
+
+        try {
+            for (Method method : methods) {
+                if (method.getName().equalsIgnoreCase(methodName)) {
+                    if (method.isAnnotationPresent(Url.class)) {
+                        Url annotation = method.getAnnotation(Url.class);
+                        int parameterCount = annotation.parametre().length;
+
+                        if (method.getParameterCount() == parameterCount) {
+                            return method;
+                        }
+                    }
+                }
+               
+            }
+
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+
+        return null;
+    }
+   public static boolean verification(Method m,HttpServletRequest req){
+        String[] list=m.getAnnotation(Url.class).parametre();
+        if(list.length>0){
+            Enumeration<String> enumeration = req.getParameterNames();
+			ArrayList<String> enumerationList = new ArrayList<String>();
+			enumerationList = enumerationToList(enumeration);
+             for (String necessaryParameter : list) {
+                if(!enumerationList.contains(necessaryParameter)){
+                    return false;
+
+                }
+
+             }
+              
+             return true;
+            
+            
+        }
+        return true;
+    } 
+    public static ArrayList<String> ParametersValue(HttpServletRequest req, Method method) {
+        ArrayList<String> result = new ArrayList<>();
+        String[] necessaryParameters = method.getAnnotation(Url.class).parametre();
+        System.out.println(verification(method, req));
+        if (verification(method, req)) {
+            for (String necessaryParameter : necessaryParameters) {
+                result.add(req.getParameter(necessaryParameter));
+            }
+        }
+
+        return result;
+    }
+
+  
 	public static ArrayList<String> enumerationToList(Enumeration<String> enumeration) {
 	    ArrayList<String> list = new ArrayList<String>();
 	    while (enumeration.hasMoreElements()) {

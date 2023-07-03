@@ -19,4 +19,19 @@ public class Emp {
         mv.setData(hash);
         return mv;
     }
+     @Url(url="emp-lien",parametre={"id","nom"})
+    public ModelView lien(Object id,Object nom){
+        String idd=id.toString();
+        String s=nom.toString();
+        System.out.println(idd+s);
+        ModelView mv = new ModelView();
+        mv.setView("../emplist.jsp");
+        List<String> list = new ArrayList<>();
+        list.add(idd);
+        list.add(s);
+        HashMap<String,Object> hash = new HashMap<>();
+        hash.put("data", list);
+        mv.setData(hash);
+        return mv;
+    }
 }

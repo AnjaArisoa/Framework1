@@ -1,7 +1,6 @@
 <%@ page import="java.utils.*" %>
-<%
-    List<String> data = (List<String>)request.getAttribute("data");
-%>
+<%@ page import ="model.Emp" %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,10 +11,6 @@
 </head>
 <body>
     <h1>test    </h1>
-    <%
-        for(String s : data){ %>
-            <p><%= s %></p>
-        <% }
-    %>
+  
 </body>
 </html>
