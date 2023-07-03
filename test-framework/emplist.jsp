@@ -1,4 +1,7 @@
 <%@ page import="java.utils.*" %>
+<%
+    List<String> data = (List<String>)request.getAttribute("data");
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,10 +11,11 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>test</h1>
-  <% 
-    String myData = (String) request.getAttribute("test");
-    out.println("<p>" + myData + "</p>");
-  %>
+    <h1>test    </h1>
+    <%
+        for(String s : data){ %>
+            <p><%= s %></p>
+        <% }
+    %>
 </body>
 </html>
