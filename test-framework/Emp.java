@@ -12,11 +12,11 @@ public class Emp {
         ModelView mv = new ModelView();
         mv.setView("../emplist.jsp");
         List<String> list = new ArrayList<>();
-        list.add("Test1");
-        list.add("Test2");
+        list.addItem("Test1");
+        list.addItem("Test2");
         HashMap<String,Object> hash = new HashMap<>();
         hash.put("data", list);
-        mv.setMv(hash);
+        mv.setData(hash);
         return mv;
     }
 }
