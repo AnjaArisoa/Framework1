@@ -8,9 +8,9 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>test    </h1>
+    <h1>test</h1>
   <% 
-    String myData = (String) request.getAttribute("emp-insert");
+    String myData = (String) request.getAttribute("test");
     out.println("<p>" + myData + "</p>");
   %>
 </body>
