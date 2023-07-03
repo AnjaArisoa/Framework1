@@ -7,8 +7,9 @@
     <title>Document</title>
 </head>
 <body>
-    <form action="process/form-save" method="get">
+    <form action="process/form-savee">
         <input type="text" name="nom">
+        <input type="text" name="prenom">
         <input type="submit" value="Envoyer">
     </form>
 </body>

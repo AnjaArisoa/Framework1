@@ -21,6 +21,9 @@ public class ModelView {
     public void addItem(String key,Object value){
         data.put(key,value);
     }
+
+    public void invoke(Object act, String valiny) {
+    }
 }
 
 
