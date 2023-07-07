@@ -3,8 +3,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import etu2007.annotation.Url;
+import etu2007.annotation.Scope;
 import etu2007.framework.ModelView;
 
+@Scope(scope="singleton")
 public class Emp {
     int id;
     String nom;
@@ -21,6 +23,7 @@ public class Emp {
         mv.setData(hashmap);
         return mv;
     }
+    
     @Url(url="emp-testParam",param={"idNom","age"})
     public ModelView testParam(String idNom,String age){
         String id = idNom;
@@ -37,6 +40,12 @@ public class Emp {
     public ModelView testUpload(){      
         ModelView mv = new ModelView();
         mv.setView("../welcome.jsp");
+        return mv;
+    }
+     @Url(url="emp-testt")
+    public ModelView testt(){      
+        ModelView mv = new ModelView();
+        mv.setView("../empll.jsp");
         return mv;
     }
     public int getId() {
