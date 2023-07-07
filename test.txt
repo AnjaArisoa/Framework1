@@ -1,0 +1,5 @@
+rehefa hanao an ilay url dia tsy maintsy ...-anarany ilay fonction no farany
+tsy maintsy class ny attribut
+manamboatra methode miretourne modelview sans enregistrement
+puis manamboatra avec parametre d'enregistrement
+utilisation de tomcat 9
