@@ -7,47 +7,16 @@ import java.util.List;
 
 
 public class Emp {
-    int id;
-    String nom;
-
-    @Url(url="emp-insert" )
+    @Url(url="emp-insert")
     public ModelView insert(){
         ModelView mv = new ModelView();
         mv.setView("../emplist.jsp");
-        List<String> noms = new ArrayList<>();
-        noms.add("test1");
-        noms.add("test2");
-        HashMap<String,Object> hashmap = new HashMap<>();
-        hashmap.put("donne",nom);
-        mv.setData(hashmap);
+        List<String> list = new ArrayList<>();
+        list.add("Test1");
+        list.add("Test2");
+        HashMap<String,Object> hash = new HashMap<>();
+        hash.put("data", list);
+        mv.setData(hash);
         return mv;
-    }
-    @Url(url="emp-testParam",param={"idNom","age"})
-    public ModelView testParam(String idNom,String age){
-        String id = idNom;
-        String year = age;
-        ModelView mv = new ModelView();
-        mv.setView("../emplist.jsp");
-        HashMap<String,Object> hashmap = new HashMap<>();
-        hashmap.put("ids",id);
-        hashmap.put("ages",year);
-        mv.setData(hashmap);
-        return mv;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getNom() {
-        return nom;
-    }
-
-    public void setNom(String nom) {
-        this.nom = nom;
     }
 }
