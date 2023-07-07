@@ -11,7 +11,6 @@
         <input type="text" name="nom">
         <input type="text" name="prenom">
         <input type="submit" value="Envoyer">
-        <a href="process/emp-lien?id=1&&nom=anja ">Cliquez</a>
     </form>
 </body>
 </html>
