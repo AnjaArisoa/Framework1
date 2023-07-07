@@ -12,7 +12,7 @@
         <input type="submit" value="valider">
     </form> -->
 
-    <a href="process/emp-testParam?idNom=4&&age=10">testttttttt</a>
+    <a href="upload.jsp">testttttttt</a>
     
 </body>
 </html>

@@ -33,7 +33,12 @@ public class Emp {
         mv.setData(hashmap);
         return mv;
     }
-
+     @Url(url="emp-testUpload")
+    public ModelView testUpload(){      
+        ModelView mv = new ModelView();
+        mv.setView("../welcome.jsp");
+        return mv;
+    }
     public int getId() {
         return id;
     }

@@ -1,6 +1,9 @@
 package etu2007.framework.servlet;
 import javax.servlet.*;
 import javax.servlet.http.*;
+import etu2007.framework.FileUpload;
+import javax.servlet.annotation.MultipartConfig;
+import java.util.Collection;
 import etu2007.annotation.Url;
 import etu2007.framework.Mapping;
 import etu2007.framework.ModelView;
@@ -13,6 +16,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 
 
+@MultipartConfig
 public class FrontServlet extends HttpServlet{
     HashMap<String,Mapping> urlMapping = new HashMap<>();
 
@@ -31,7 +35,7 @@ public class FrontServlet extends HttpServlet{
         }
     }
     public ArrayList<String> change(String[] strs){
-        ArrayList<String> retour =new ArrayList<>();
+        ArrayList<String> retour =new ArrayList<>();    
         for (String string : strs) {
             retour.add(string);
         }
@@ -104,7 +108,33 @@ public class FrontServlet extends HttpServlet{
         out.println(url);
         if(urlMapping.containsKey(url)){
             try {
-//sprint 6      
+    
+//FileUpload
+            if (req.getContentType() != null) {
+                ArrayList<FileUpload> allUploads = new ArrayList<FileUpload>();
+                Collection<Part> parts = req.getParts();
+                if (parts != null) {
+                    for (Part part : parts) {
+                       String fileName = part.getName();
+                        Part filePart = req.getPart(fileName);
+                        InputStream in = filePart.getInputStream();
+                        byte[] fileBytes = in.readAllBytes();
+                        String directory = "./uploads/";
+                        File file = new File(directory);
+                        if (!file.exists()) {
+                            file.mkdirs();
+                        }
+                        FileUpload fileUpload = new FileUpload();
+                        fileUpload.setFileName(fileName);
+                        fileUpload.setPath(directory);
+                        fileUpload.setBytes(fileBytes);
+                        allUploads.add(fileUpload);
+                        }
+                    }
+                    System.out.println(allUploads);
+                    req.setAttribute("uploads", allUploads);
+                }
+//sprint 6  
                 ArrayList<String> get = new ArrayList<>();
                 Object act = Class.forName(urlMapping.get(url).getClassName()).newInstance();
                 Method methody = getMethode(act.getClass(),urlMapping.get(url).getMethod(), url);
@@ -135,7 +165,7 @@ public class FrontServlet extends HttpServlet{
                             }
                         }
                     }
-                
+
                 for (String key : mv.getData().keySet()) {
                     Object valeur=mv.getData().get(key);
                     req.setAttribute(key, valeur);
