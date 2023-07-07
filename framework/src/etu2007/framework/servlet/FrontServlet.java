@@ -6,16 +6,12 @@ import etu2007.framework.Mapping;
 import etu2007.framework.ModelView;
 import utils.PackageTool;
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.Date;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
+
 
 public class FrontServlet extends HttpServlet{
     HashMap<String,Mapping> urlMapping = new HashMap<>();
@@ -34,8 +30,73 @@ public class FrontServlet extends HttpServlet{
             e.printStackTrace();
         }
     }
-    
-    protected void processRequest(HttpServletRequest req,HttpServletResponse res) throws ServletException, IOException {
+    public ArrayList<String> change(String[] strs){
+        ArrayList<String> retour =new ArrayList<>();
+        for (String string : strs) {
+            retour.add(string);
+        }
+        return retour;
+    }
+
+    public ArrayList<String> parametre(HttpServletRequest req,Method method){
+        ArrayList<String> s = list(req);
+        ArrayList<String> s1 = new ArrayList<>();
+        try {
+            Url annot = method.getAnnotation(Url.class);
+            String[] st = annot.param();
+            if (s.containsAll(change(st))) {
+                    for (String string : st) {
+                        if (s.contains(string)) {
+                            s1.add(string);
+                        }
+                    }               
+            }
+        } catch (Exception e) {
+            
+        }
+        return s1;
+    }
+    public ArrayList<String> getValeurParam(HttpServletRequest req,Method met){
+        ArrayList<String> list = new ArrayList<>();
+        ArrayList<String> list1 = parametre(req, met);
+        for (String string : list1) {
+            list.add(req.getParameter(string));
+        }
+        return list;
+    }
+
+    public ArrayList<String> list(HttpServletRequest req){
+        ArrayList<String> array = new ArrayList<>();
+        Enumeration<String> nom = req.getParameterNames();
+        while (nom.hasMoreElements()) {
+                    array.add(nom.nextElement());
+                }
+        return array;
+    }
+    public static Method getMethode(Class modelClass, String methodName, String annotationName) {
+    Method[] methods = modelClass.getDeclaredMethods();
+
+        try {
+            for (Method method : methods) {
+                if (method.getName().equalsIgnoreCase(methodName)) {
+                    if (method.isAnnotationPresent(Url.class)) {
+                        Url annotation = method.getAnnotation(Url.class);
+                        int parameterCount = annotation.param().length;
+
+                        if (method.getParameterCount() == parameterCount) {
+                            return method;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+
+        return null;
+    }
+
+    protected void processRequest(HttpServletRequest req,HttpServletResponse res) throws IOException{
         res.setContentType("text/plain");
         PrintWriter out = res.getWriter();
         String url = req.getRequestURI();
@@ -43,99 +104,59 @@ public class FrontServlet extends HttpServlet{
         out.println(url);
         if(urlMapping.containsKey(url)){
             try {
+//sprint 6      
+                ArrayList<String> get = new ArrayList<>();
                 Object act = Class.forName(urlMapping.get(url).getClassName()).newInstance();
-                Class<?> clazz = act.getClass();
-                Field[] fields = clazz.getDeclaredFields();
-                Enumeration<String> enumeration = req.getParameterNames();
-					ArrayList<String> enumerationList = new ArrayList<String>();
-					enumerationList = enumerationToList(enumeration);
-                    for (int i = 0; i < fields.length; i++) {
-						System.out.println("FIELD: "+fields[i].getName());
-						if(checkIfExist(enumerationList, fields[i])==true) {
-							System.out.println("EXIST FIELD: "+fields[i].getName());
-							Object attributObject = req.getParameter(fields[i].getName());
-						    Object objectCast =  castObject(attributObject, fields[i].getType()); 
-                            Method m = act.getClass().getDeclaredMethod("set" + capitalize(fields[i].getName()), fields[i].getType());
-                            m.invoke(act, objectCast);
-                            System.out.println("metyyyy");
-							
-						}
+                Method methody = getMethode(act.getClass(),urlMapping.get(url).getMethod(), url);
+                get=getValeurParam(req, methody);
+                ModelView mv =(ModelView)methody.invoke(act,get.toArray());
+                for(String cle:mv.getData().keySet()){
+                    Object valeur=mv.getData().get(cle);
+                    req.setAttribute(cle, valeur);
+                }
+
+//sprint 7
+                ArrayList<String> array = new ArrayList<>();
+                ArrayList<String> don = new ArrayList<>();
+                Field[] attribut = act.getClass().getDeclaredFields();
+                Method[] methods = act.getClass().getDeclaredMethods();                
+                array=list(req);
+
+                    for (Field i : attribut) {
+                        don.add(i.getName());
                     }
-                    ModelView mv = (ModelView)act.getClass().getDeclaredMethod(urlMapping.get(url).getMethod()).invoke(act);
-                        for (String rl:mv.getData().keySet()){
-                            Object valeur = mv.getData().get(rl);
-                            req.setAttribute(rl,valeur);
+                    for (String string : array) {
+                        if (don.contains(string)) {
+                            for (Method method : methods) {
+                                String setters = "set"+string;
+                                if (method.getName().equalsIgnoreCase(setters)) {
+                                    method.invoke(act, req.getParameter(string));
+                                }
+                            }
                         }
-                    RequestDispatcher requestDispatcher = req.getRequestDispatcher(mv.getView());    
-                    requestDispatcher.forward(req,res);
-                            
-                    
-            } 
-            catch (Exception e) {
-                e.printStackTrace();
+                    }
+                
+                for (String key : mv.getData().keySet()) {
+                    Object valeur=mv.getData().get(key);
+                    req.setAttribute(key, valeur);
+                    out.println("ito"+String.valueOf(valeur));
+                }
+                req.setAttribute("objet", act);
+
+
+                RequestDispatcher requestDispatcher = req.getRequestDispatcher(mv.getView()) ;    
+                requestDispatcher.forward(req,res);
+            } catch (Exception e) {
+                    e.printStackTrace();
+                    out.println(e);
             }
         }
     }
 
-    public static Object castObject(Object object, Class<?> castType) {
-        System.out.print("Tafiditra");
-		try {
-            if (castType.equals(Integer.TYPE) || castType.equals(Integer.class)) {
-                return Integer.parseInt(object.toString());
-            } else if (castType.equals(Double.TYPE) || castType.equals(Double.class)) {
-                return Double.parseDouble(object.toString());
-            } else if (castType.equals(Boolean.TYPE) || castType.equals(Boolean.class)) {
-                return Boolean.parseBoolean(object.toString());
-            } else if (castType.equals(java.sql.Date.class)) {
-            	System.out.println("Cas 1");
-                DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
-                Date date = (Date) df.parse(object.toString());
-                System.out.println(date.toString());
-                return date;
-            } else if (castType.equals(Date.class)) {
-            	System.out.println("Cas 2");
-                DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
-                Date utilDate = (Date) df.parse(object.toString());
-                System.out.println(new java.sql.Date(utilDate.getTime()).toString());
-                return new java.sql.Date(utilDate.getTime());
-            } else {
-                return object;
-            }
-        } catch (Exception e) {
-        	e.printStackTrace();
-            return null;
-        }
+    protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException{
+        processRequest(req, res);
     }
-    
-	public static ArrayList<String> enumerationToList(Enumeration<String> enumeration) {
-	    ArrayList<String> list = new ArrayList<String>();
-	    while (enumeration.hasMoreElements()) {
-	        list.add(enumeration.nextElement());
-	    }
-	    return list;
-	}
-
-	public static boolean checkIfExist(ArrayList<String> enumerationList, Field field){
-		for(int i = 0; i < enumerationList.size(); i++){
-			System.out.println("ENUMERATION: "+enumerationList.get(i)+" field: "+field.getName());
-			if(field.getName().compareTo(enumerationList.get(i))==0){
-				return true;
-			}
-		}
-		return false;
-	}
-    public String capitalize(String str){
-        return str.substring(0, 1).toUpperCase() + str.substring(1);  
-    }
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
-        processRequest(request, response);
-    }
-
-    
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
+    protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException{
+        processRequest(req, res);
     }
 }
